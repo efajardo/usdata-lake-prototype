@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+  name: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/stashcache
+        operator: Exists
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - xrootd-data-lake-origin-1.t2.ucsd.edu
+      containers:
+      - env:
+        - name: XC_MULTI_DISK
+          value: 'true'
+        image: opensciencegrid/xrootd-standalone:stable
+        ports:
+         - containerPort: 1094
+           hostPort: 1094
+        imagePullPolicy: Always
+        name: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+        resources:
+           limits:
+              memory: 30Gi
+              cpu: 4
+           requests:
+              memory: 20Gi
+              cpu: 4
+        volumeMounts:
+        - mountPath: /etc/xrootd/config.d/95-local-ucsd.cfg
+          name: config95
+          subPath: 95-local-ucsd.cfg
+        - mountPath: /xorigin
+          name: localroot
+        - mountPath: /xorigin/data1
+          name: data1
+        - mountPath: /xorigin/data2
+          name: data2
+        - mountPath: /xorigin/data3
+          name: data3
+        - mountPath: /xorigin/data4
+          name: data4
+        - mountPath: /xorigin/data5
+          name: data5
+        - mountPath: /xorigin/data6
+          name: data6
+        - mountPath: /xorigin/data7
+          name: data7
+        - mountPath: /xorigin/data8
+          name: data8
+        - mountPath: /xorigin/data9
+          name: data9
+        - mountPath: /xorigin/data10
+          name: data10
+        - mountPath: /xorigin/data11
+          name: data11
+        - mountPath: /xorigin/data12
+          name: data12
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: 95-local-ucsd.cfg
+            path: 95-local-ucsd.cfg
+          name: cms-xcache-bcache-1-ucsd
+        name: config95
+      - name: data1
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-1
+      - name: data2
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-2
+      - name: data3
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-3
+      - name: data4
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-4
+      - name: data5
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-5
+      - name: data6
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-6
+      - name: data7
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-7
+      - name: data8
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-8
+      - name: data9
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-9
+      - name: data10
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-10
+      - name: data11
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-11
+      - name: data12
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-12
+      - name: localroot
+        hostPath:
+          path: /xorigin-root
+          type: Directory
