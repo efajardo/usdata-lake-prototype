@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lake-redirector
+  namespace: cms-admin
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      k8s-app: lake-redirector
+  template:
+    metadata:
+      labels:
+        k8s-app: lake-redirector
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/stashcache
+        operator: Exists
+      containers:
+      - env:
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        name: lake-redirector
+        resources:
+          limits:
+            cpu: 2
+            memory: 6Gi
+          requests:
+            cpu: 1
+            memory: 5Gi
+        # Image in https://github.com/efajardo/cache-redirector
+        image: efajardo/cache-redirector:latest
+        ports:
+        - containerPort: 1094
+        - containerPort: 1095
+        volumeMounts:
+      restartPolicy: Always
+      volumes:
+#        - name: condor-config
+#          configMap:
+#             name: condor-flock-config
+#             items:
+#             - key: condor.config
+#               path: condor_config.local
+
+

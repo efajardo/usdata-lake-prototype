@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    k8s-app: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
-  name: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+    k8s-app: cms-xrootd-data-lake-origin-caltech
+  name: cms-xrootd-data-lake-origin-caltech
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+      k8s-app: cms-xrootd-data-lake-origin-caltech
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -17,7 +17,7 @@ spec:
   template:
     metadata:
       labels:
-        k8s-app: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+        k8s-app: cms-xrootd-data-lake-origin-caltech
     spec:
       tolerations:
       - effect: NoSchedule
@@ -61,7 +61,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - xrootd-data-lake-origin-1.t2.ucsd.edu
+                - k8s1-pb10.ultralight.org
       containers:
       - env:
         - name: XC_ROOTDIR
@@ -77,7 +77,7 @@ spec:
          - containerPort: 1094
            hostPort: 1094
         imagePullPolicy: Always
-        name: cms-xrootd-data-lake-origin-1-t2-ucsd-edu
+        name: cms-xrootd-data-lake-origin-caltech
         resources:
            limits:
               memory: 30Gi
@@ -89,6 +89,14 @@ spec:
         - mountPath: /etc/xrootd/config.d/95-local-ucsd.cfg
           name: config95
           subPath: 95-local-ucsd.cfg
+        - mountPath: /etc/grid-security/hostcert.pem
+          name: certificate
+          readOnly: true
+          subPath: hostcert.pem
+        - mountPath: /etc/grid-security/hostkey.pem
+          name: hostkey
+          readOnly: true
+          subPath: hostkey.pem
         - mountPath: /xorigin
           name: localroot
         - mountPath: /xorigin/data1
@@ -113,50 +121,45 @@ spec:
           name: data11
         - mountPath: /xorigin/data12
           name: data12
-        - mountPath: /etc/grid-security/hostcert.pem
-          name: certificate
-          readOnly: true
-          subPath: hostcert.pem
-        - mountPath: /etc/grid-security/hostkey.pem
-          name: hostkey
-          readOnly: true
-          subPath: hostkey.pem
       #hostNetwork: true
       restartPolicy: Always
       volumes:
       - name: data1
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-1
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-1
       - name: data2
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-2
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-2
       - name: data3
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-3
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-3
+      - name: data4
+        persistentVolumeClaim:
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-4
       - name: data5
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-5
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-5
       - name: data6
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-6
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-6
       - name: data7
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-7
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-7
       - name: data8
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-8
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-8
       - name: data9
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-9
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-9
       - name: data10
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-10
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-10
       - name: data11
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-11
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-11
       - name: data12
         persistentVolumeClaim:
-          claimName: pvc-xrootd-data-lake-origin-1-t2-ucsd-edu-persistent-12
+          claimName: pvc-xrootd-data-lake-origin-caltech-k8s1-pb10-ultralight-org-persistent-12
       - name: localroot
         hostPath:
           path: /xorigin-root
@@ -170,14 +173,14 @@ spec:
         name: config95
       - name: certificate
         secret:
-          secretName: ucsd-origin-certs
+          secretName: caltech-origin-certs
           items:
           - key: hostcert
             path: hostcert.pem
           defaultMode: 0600
       - name: hostkey
         secret:
-          secretName: ucsd-origin-certs
+          secretName: caltech-origin-certs
           items:
           - key: hostkey
             path: hostkey.pem
